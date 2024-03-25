@@ -308,15 +308,17 @@ class DefaultPredictor:
             # Apply pre-processing to image.
             if self.input_format == "RGB":
                 # whether the model expects BGR inputs or RGB
-                original_image = original_image[:, :, ::-1]
-            height, width = original_image.shape[:2]
-            image = self.aug.get_transform(original_image).apply_image(original_image)
-            image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
-            image.to(self.cfg.MODEL.DEVICE)
+                original_image = [origina_image[:, :, ::-1] for origina_image in original_image]
+            height = [origina_image.shape[0] for origina_image in original_image]
+            width = [origina_image.shape[1] for origina_image in original_image]
+            image = [self.aug.get_transform(origina_image).apply_image(origina_image) for origina_image in original_image]
+            image = [torch.as_tensor(img.astype("float32").transpose(2, 0, 1)) for img in image]
+            for img in image:
+              img.to(self.cfg.MODEL.DEVICE)
 
-            inputs = {"image": image, "height": height, "width": width}
+            inputs = [{"image": image[i], "height": height[i], "width": width[i]} for i in range(len(height))]
 
-            predictions = self.model([inputs])[0]
+            predictions = self.model(inputs)
             return predictions
 
 
