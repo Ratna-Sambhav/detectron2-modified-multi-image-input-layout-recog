@@ -319,6 +319,8 @@ class DefaultPredictor:
             inputs = [{"image": image[i], "height": height[i], "width": width[i]} for i in range(len(height))]
 
             predictions = self.model(inputs)
+            del inputs
+            torch.cuda.empty_cache()
             return predictions
 
 
