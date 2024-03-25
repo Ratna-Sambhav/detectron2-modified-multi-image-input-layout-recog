@@ -320,6 +320,7 @@ class DefaultPredictor:
 
             predictions = self.model(inputs)
             del inputs
+            del image
             torch.cuda.empty_cache()
             return predictions
 
